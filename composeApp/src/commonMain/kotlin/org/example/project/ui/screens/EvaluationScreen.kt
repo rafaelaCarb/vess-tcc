@@ -1,341 +1,200 @@
 package com.example.appvess.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+
+data class LayerData(var length: String = "", var score: String = "")
+
+object EvaluationScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        EvaluationScreenContent(
+            onBackClick = { navigator.pop() }
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EvaluationScreen(
-    onBackClick: () -> Unit
-) {
-    var selectedLayers by remember { mutableStateOf(1) }
+fun EvaluationScreenContent(onBackClick: () -> Unit) {
     var localPropriedade by remember { mutableStateOf("") }
     var avaliador by remember { mutableStateOf("") }
-    var comprimentoCamada1 by remember { mutableStateOf("") }
-    var notaCamada1 by remember { mutableStateOf("") }
-    var comprimentoCamada2 by remember { mutableStateOf("") }
-    var comprimentoCamada3 by remember { mutableStateOf("") }
-    var notaCamada3 by remember { mutableStateOf("") }
     var outrasInfo by remember { mutableStateOf("") }
+    var selectedLayers by remember { mutableStateOf(1) }
+    val layerDataList = remember { mutableStateListOf<LayerData>().apply { addAll(List(5) { LayerData() }) } }
 
-    val scrollState = rememberScrollState()
-
-    val gradientBrush = Brush.verticalGradient(
+    val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-            MaterialTheme.colorScheme.background,
-            MaterialTheme.colorScheme.background
-        ),
-        startY = 0f,
-        endY = 800f
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.surface
+        )
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradientBrush)
-    ) {
-        EvaluationHeader(onBackClick = onBackClick)
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = MaterialTheme.shapes.medium
+    Scaffold(
+        topBar = { EvaluationHeader(onBackClick = onBackClick) },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            Surface(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                shadowElevation = 8.dp
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Amostra Nº 01",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(
-                        onClick = { /* TODO: Info */ },
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                    ) {
-                        Text(
-                            text = "?",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                    }
-                }
-            }
-
-            Text(
-                text = "Quantas camadas de solo deseja avaliar?",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                repeat(5) { index ->
-                    val layerNumber = index + 1
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (selectedLayers == layerNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-                            )
-                            .clickable { selectedLayers = layerNumber },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = layerNumber.toString(),
-                            color = if (selectedLayers == layerNumber) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                    }
-                }
-            }
-
-            EvaluationTextField(
-                label = "Local/propriedade (GPS):",
-                value = localPropriedade,
-                onValueChange = { localPropriedade = it }
-            )
-
-            EvaluationTextField(
-                label = "Avaliador:",
-                value = avaliador,
-                onValueChange = { avaliador = it }
-            )
-
-            EvaluationTextField(
-                label = "Comprimento camada 1:",
-                value = comprimentoCamada1,
-                onValueChange = { comprimentoCamada1 = it }
-            )
-
-            EvaluationTextField(
-                label = "Nota camada 1:",
-                value = notaCamada1,
-                onValueChange = { notaCamada1 = it }
-            )
-
-            EvaluationTextField(
-                label = "Comprimento camada 2:",
-                value = comprimentoCamada2,
-                onValueChange = { comprimentoCamada2 = it }
-            )
-
-            if (selectedLayers >= 3) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Row(
+                Column {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    Button(
+                        onClick = { /* TODO: Lógica para avaliar */ },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .height(52.dp),
+                        shape = MaterialTheme.shapes.large
                     ) {
                         Text(
-                            text = "Avaliações Camada 3",
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.weight(1f)
+                            text = "CONCLUIR AVALIAÇÃO",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
-                        IconButton(
-                            onClick = { /* TODO: Info */ },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape)
-                        ) {
-                            Text(
-                                text = "?",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
+                    }
+                }
+            }
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(backgroundBrush),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                FormSection(title = "Informações Gerais") {
+                    EvaluationTextField(label = "Local/propriedade (GPS)", value = localPropriedade, onValueChange = { localPropriedade = it })
+                    Spacer(modifier = Modifier.height(16.dp))
+                    EvaluationTextField(label = "Avaliador", value = avaliador, onValueChange = { avaliador = it })
+                }
+            }
+
+            item {
+                FormSection(title = "Seleção de Camadas") {
+                    val layerOptions = (1..5).map { "$it" }.toTypedArray()
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.requiredWidth(350.dp)) {
+                        layerOptions.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = MaterialTheme.shapes.extraLarge,                                onClick = { selectedLayers = index + 1 },
+                                selected = (index + 1) == selectedLayers
+                            ) {
+                                Text(label)
+                            }
                         }
                     }
                 }
-
-                EvaluationTextField(
-                    label = "Comprimento camada 3:",
-                    value = comprimentoCamada3,
-                    onValueChange = { comprimentoCamada3 = it }
-                )
-
-                EvaluationTextField(
-                    label = "Nota camada 3:",
-                    value = notaCamada3,
-                    onValueChange = { notaCamada3 = it }
-                )
             }
 
-
-            Button(
-                onClick = { /* TODO: Camera */ },
-                modifier = Modifier
-                    .size(64.dp) // Slightly larger button
-                    .align(Alignment.CenterHorizontally), // Center the button
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                shape = CircleShape,
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt, // Changed to a more relevant camera icon
-                    contentDescription = "Câmera",
-                    modifier = Modifier.size(32.dp)
-                )
+            items(selectedLayers) { layerIndex ->
+                FormSection(title = "Detalhes da Camada ${layerIndex + 1}") {
+                    val currentLayerData = layerDataList[layerIndex]
+                    EvaluationTextField(
+                        label = "Comprimento (cm)",
+                        value = currentLayerData.length,
+                        onValueChange = { layerDataList[layerIndex] = currentLayerData.copy(length = it) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    EvaluationTextField(
+                        label = "Nota VESS",
+                        value = currentLayerData.score,
+                        onValueChange = { layerDataList[layerIndex] = currentLayerData.copy(score = it) }
+                    )
+                }
             }
 
-            EvaluationTextField(
-                label = "Outras informações importantes:",
-                value = outrasInfo,
-                onValueChange = { outrasInfo = it },
-                minLines = 4
-            )
-
-            Text(
-                text = "Sugestões que contribuam para a construção de um histórico de avaliação da propriedade ou do grau de sucesso de uma cultura ou de lavoura específica da cultura avaliada (...)",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 18.sp
-            )
-
-            Button(
-                onClick = { /* TODO: Avaliar */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp), // Consistent height with ModernEvaluateButton
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = MaterialTheme.shapes.medium, // Use MaterialTheme shape
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Text(
-                    text = "AVALIAR",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
+            item {
+                FormSection("Recursos Adicionais") {
+                    EvaluationTextField(label = "Outras informações importantes", value = outrasInfo, onValueChange = { outrasInfo = it }, minLines = 4)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        onClick = { /* TODO: Câmera */ },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Icon(Icons.Default.CameraAlt, contentDescription = "Câmera", modifier = Modifier.padding(end = 8.dp))
+                        Text("ADICIONAR FOTO")
+                    }
+                }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
 @Composable
-private fun EvaluationHeader(onBackClick: () -> Unit) {
-    val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.primary
-        )
-    )
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp), // Rounded bottom corners
-        shadowElevation = 12.dp,
-        color = Color.Transparent
-    ) {
-        Box(
-            modifier = Modifier
-                .background(gradientBrush)
-                .padding(vertical = 16.dp, horizontal = 16.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Voltar",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(28.dp) // Slightly larger icon
-                    )
-                }
-                Text(
-                    text = "Avaliações",
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                Spacer(modifier = Modifier.width(48.dp)) // To balance the back button
+private fun FormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = { /* TODO: Mostrar ajuda */ }) {
+                Icon(Icons.Outlined.Info, contentDescription = "Ajuda sobre a seção", tint = MaterialTheme.colorScheme.primary)
             }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+        ) {
+            Column(modifier = Modifier.padding(16.dp), content = content)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EvaluationTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    minLines: Int = 1
-) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 6.dp)
+private fun EvaluationHeader(onBackClick: () -> Unit) {
+    TopAppBar(
+        title = { Text("Avaliação", fontWeight = FontWeight.Bold) },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Voltar")
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         )
+    )
+}
 
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            minLines = minLines,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = MaterialTheme.shapes.medium
-        )
-    }
+@Composable
+fun EvaluationTextField(label: String, value: String, onValueChange: (String) -> Unit, minLines: Int = 1) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(label) },
+        minLines = minLines,
+        shape = MaterialTheme.shapes.medium
+    )
 }

@@ -34,26 +34,35 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.material)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.material3AdaptiveNavigationSuite)
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.material)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(compose.materialIconsExtended)
+                implementation(compose.material3AdaptiveNavigationSuite)
+                implementation(libs.voyager.navigator)
+                implementation(libs.voyager.transitions)
+            }
 
-            implementation(libs.voyager.navigator)
-            implementation(libs.voyager.transitions)
+            // >>>>> ESTA É A LINHA QUE FALTAVA <<<<<
+            // Ela informa oficialmente ao Gradle que a pasta 'src/commonMain/resources'
+            // contém os seus arquivos de recursos (imagens, fontes, etc.).
+            resources.srcDirs("src/commonMain/resources")
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+
     }
+
 }
 
 android {

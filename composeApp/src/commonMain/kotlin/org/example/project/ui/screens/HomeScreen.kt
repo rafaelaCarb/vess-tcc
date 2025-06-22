@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,8 +29,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
+import com.example.appvess.ui.screens.ComplementaryInfoScreen
 import com.example.appvess.ui.screens.EvaluationScreen
 import com.example.appvess.ui.screens.ConfigScreen
+import com.example.appvess.ui.screens.ManagementDecisionScreen
 
 object HomeScreen : Screen {
 
@@ -53,7 +57,7 @@ fun HomeScreenContent(
 
     val processMenuItems = listOf(
         MenuItem("Equipamentos", Icons.Default.Build) { navigator.push(EquipmentScreen) },
-        MenuItem("Onde amostrar", Icons.Default.LocationOn) { /*  */ },
+        MenuItem("Onde amostrar", Icons.Default.LocationOn) { /* */ },
         MenuItem("Quando amostrar", Icons.Default.Schedule) { /* ... */ },
         MenuItem("Extração", Icons.Default.ContentCut) { /* ... */ },
         MenuItem("Fragmentação", Icons.Default.Grain) { /* ... */ },
@@ -61,9 +65,10 @@ fun HomeScreenContent(
     )
 
     val extrasMenuItems = listOf(
-        MenuItem("Decisão de manejo", Icons.Default.Spa) { /* ... */ },
+        MenuItem("Decisão de manejo", Icons.Default.Spa) { navigator.push(ManagementDecisionScreen) },
         MenuItem("Minhas avaliações", Icons.Default.History) { /* ... */ },
-        MenuItem("O que é o VESS", Icons.Default.HelpOutline) { /* ... */ },
+        MenuItem("O que é o VESS", Icons.Outlined.HelpOutline) { /* ... */ },
+        MenuItem("Info. Complementar", Icons.Outlined.Info) { navigator.push(ComplementaryInfoScreen) },
         MenuItem("Configurações", Icons.Default.Settings, onClick = onConfigClick)
     )
 

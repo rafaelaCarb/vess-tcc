@@ -21,15 +21,19 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
-object ConfigScreen : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-        ConfigScreenContent(
-            onBackClick = { navigator.pop() }
-        )
+import com.example.appvess.ui.screens.TermsAndConditionsScreen
+
+
+
+    object ConfigScreen : Screen {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            ConfigScreenContent(
+                onBackClick = { navigator.pop() }
+            )
+        }
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +45,7 @@ fun ConfigScreenContent(onBackClick: () -> Unit) {
     var cidade by remember { mutableStateOf("São José dos Campos - SP") }
     var idioma by remember { mutableStateOf("Português (Brasil)") }
 
+    val navigator = LocalNavigator.currentOrThrow
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
@@ -107,7 +112,7 @@ fun ConfigScreenContent(onBackClick: () -> Unit) {
 
             item {
                 OutlinedButton(
-                    onClick = { /* TODO: Implementar termos */ },
+                    onClick = { navigator.push(TermsAndConditionsScreen) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),

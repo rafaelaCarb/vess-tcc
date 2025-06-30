@@ -28,14 +28,14 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-
 import com.example.appvess.ui.screens.ComplementaryInfoScreen
-import com.example.appvess.ui.screens.EvaluationScreen
 import com.example.appvess.ui.screens.ConfigScreen
+import com.example.appvess.ui.screens.EvaluationScreen
 import com.example.appvess.ui.screens.ManagementDecisionScreen
+import kotlinx.coroutines.launch
+import org.example.project.data.SharedConfigurationManager
 
 object HomeScreen : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -54,20 +54,24 @@ fun HomeScreenContent(
     onConfigClick: () -> Unit
 ) {
     val navigator = LocalNavigator.currentOrThrow
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val config by SharedConfigurationManager.config
+    val isLoadingConfig by SharedConfigurationManager.isLoading
 
     val processMenuItems = listOf(
         MenuItem("Equipamentos", Icons.Default.Build) { navigator.push(EquipmentScreen) },
-        MenuItem("Onde amostrar", Icons.Default.LocationOn) { /* */ },
-        MenuItem("Quando amostrar", Icons.Default.Schedule) { /* ... */ },
-        MenuItem("Extração", Icons.Default.ContentCut) { /* ... */ },
-        MenuItem("Fragmentação", Icons.Default.Grain) { /* ... */ },
-        MenuItem("Escores VESS", Icons.Default.Rule) { /* ... */ }
+        MenuItem("Onde amostrar", Icons.Default.LocationOn) {},
+        MenuItem("Quando amostrar", Icons.Default.Schedule) {},
+        MenuItem("Extração", Icons.Default.ContentCut) {},
+        MenuItem("Fragmentação", Icons.Default.Grain) {},
+        MenuItem("Escores VESS", Icons.Default.Rule) {}
     )
 
     val extrasMenuItems = listOf(
         MenuItem("Decisão de manejo", Icons.Default.Spa) { navigator.push(ManagementDecisionScreen) },
-        MenuItem("Minhas avaliações", Icons.Default.History) { /* ... */ },
-        MenuItem("O que é o VESS", Icons.Outlined.HelpOutline) { /* ... */ },
+        MenuItem("Minhas avaliações", Icons.Default.History) {},
+        MenuItem("O que é o VESS", Icons.Outlined.HelpOutline) {},
         MenuItem("Info. Complementar", Icons.Outlined.Info) { navigator.push(ComplementaryInfoScreen) },
         MenuItem("Configurações", Icons.Default.Settings, onClick = onConfigClick)
     )
@@ -76,6 +80,7 @@ fun HomeScreenContent(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("VESS", fontWeight = FontWeight.Bold) },
@@ -95,7 +100,20 @@ fun HomeScreenContent(
             item {
                 HeaderContent()
                 Spacer(modifier = Modifier.height(24.dp))
-                EvaluateButton(onClick = onEvaluateClick)
+                EvaluateButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            if (isLoadingConfig) {
+                                snackbarHostState.showSnackbar("Aguarde, carregando configuração...")
+                            } else if (config == null) {
+                                snackbarHostState.showSnackbar("Configure o aplicativo antes de iniciar uma avaliação.")
+                                onConfigClick()
+                            } else {
+                                onEvaluateClick()
+                            }
+                        }
+                    }
+                )
                 Spacer(modifier = Modifier.height(32.dp))
             }
             item {
@@ -240,7 +258,6 @@ fun MenuCard(item: MenuItem) {
         }
     }
 }
-
 object EquipmentScreen : Screen {
     @Composable
     override fun Content() {

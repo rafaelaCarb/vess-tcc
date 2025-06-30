@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -49,12 +50,19 @@ kotlin {
                 implementation(compose.material3AdaptiveNavigationSuite)
                 implementation(libs.voyager.navigator)
                 implementation(libs.voyager.transitions)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.voyager.screenmodel)
+
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+
+                implementation("io.ktor:ktor-client-okhttp:2.3.9")
+                implementation("io.ktor:ktor-client-core:2.3.9")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.9")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.9")
+                implementation("io.ktor:ktor-client-logging:2.3.9")
             }
 
-            // >>>>> ESTA É A LINHA QUE FALTAVA <<<<<
-            // Ela informa oficialmente ao Gradle que a pasta 'src/commonMain/resources'
-            // contém os seus arquivos de recursos (imagens, fontes, etc.).
-            resources.srcDirs("src/commonMain/resources")
+           resources.srcDirs("src/commonMain/resources")
         }
 
         commonTest.dependencies {
@@ -89,10 +97,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
 }
 
